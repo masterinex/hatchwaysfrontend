@@ -1,3 +1,38 @@
+/* div to hold the 2 inputFields for search by name and tag, display is inline-grid,
+because inputFields are displayed from left to right by default, so we need to tell the CSS
+to stack the 2 input fields from top to bottom*/
+.inputFields {
+  display: inline-grid;
+}
+
+/* className div that contains all the information for the student, imageDiv and textDiv as 2  child-divs,
+seperated in 2 columns using display:flex*/
+.imageAndText {
+  display: flex;
+  align-items: center;
+  margin: auto;
+  width: 64%;
+  margin-bottom: 40px;
+}
+
+/* div that surrounds the image, used to add borders to the image*/
+.imageDiv {
+  border: 2px solid black;
+  border-radius: 100px 100px;
+  padding-bottom: 20px;
+  margin-right: 40px;
+}
+
+.image {
+  height: 200px;
+  width: 201px;
+}
+
+.name {
+  font-size: 40px;
+  font-weight: bold;
+}
+
 .App {
   text-align: center;
 }

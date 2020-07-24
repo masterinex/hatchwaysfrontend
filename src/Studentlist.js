@@ -115,8 +115,15 @@ const Studentlist = () => {
     else assign an empty tag to it, and store it in a variable called tag
     and grab the property name from tag and store it in tagname
     */
-
     let filteredStudents = [];
+    // boolean indicating whether to use .filter or not, we don't want to use any filtering, when e.target.value is blank,
+    // in that case we just want to list all the students
+    let useFilter = true;
+    //if (e.target.value.length === "") { <--does not work, e.target.value is blank, but not empty string !!!
+    if (e.target.value.length === 0) {
+      filteredStudents = studentlist;
+      useFilter = false;
+    }
     /* if the user has already filtered by name, use the filtered name array filteredStudentsbyName
      as input for the next filter by tag*/
     if (filteredbyNameAlready) {
@@ -125,16 +132,18 @@ const Studentlist = () => {
       // else if user has not filtered by name yet, just use the existing studentlist
       filteredStudents = studentlist;
     }
-    filteredStudents = filteredStudents.filter((student) => {
-      // grab the tag property from each student and store it in variable called tag
-      const { tag = [] } = student;
-      // create a new map called tagName which just holds the name as a string for all the tags,
-      // remember that tag is a object tag = {name: tag}
-      const tagName = tag.map(({ name }) => name);
-      // check if all the tags that the student has (tagName) include the user input(e.target.value)
-      // ie if tagName =["tag1", "tag2"] and e.target.value is "tag1" , check if the arrary includes "tag1"
-      return tagName.includes(e.target.value);
-    });
+    if (useFilter) {
+      filteredStudents = filteredStudents.filter((student) => {
+        // grab the tag property from each student and store it in variable called tag
+        const { tag = [] } = student;
+        // create a new map called tagName which just holds the name as a string for all the tags,
+        // remember that tag is a object tag = {name: tag}
+        const tagName = tag.map(({ name }) => name);
+        // check if all the tags that the student has (tagName) include the user input(e.target.value)
+        // ie if tagName =["tag1", "tag2"] and e.target.value is "tag1" , check if the arrary includes "tag1"
+        return tagName.includes(e.target.value);
+      });
+    }
     //setFilteredStudentsbyNameAndTag(filteredStudents);
     setDisplayfilteredStudents(filteredStudents);
   };
@@ -166,64 +175,85 @@ const Studentlist = () => {
 
   return (
     <Fragment>
-      <input
-        id="name-input"
-        type="field"
-        value={nameInput}
-        onChange={handleNameChange}
-        placeholder="Enter a Name"
-      />
-      <input
-        id="tag-input"
-        type="field"
-        value={tagInput}
-        onChange={handleTagChange}
-        placeholder="Enter a Tag"
-      />
+      <div className="inputFields">
+        <input
+          id="name-input"
+          type="field"
+          value={nameInput}
+          onChange={handleNameChange}
+          placeholder="Enter a Name"
+        />
+
+        <input
+          id="tag-input"
+          type="field"
+          value={tagInput}
+          onChange={handleTagChange}
+          placeholder="Enter a Tag"
+        />
+      </div>
       {displayfilteredStudents &&
         displayfilteredStudents.map((student, index) => (
           <Fragment key={index}>
-            <div>
-              <img src={student.pic} alt={student.firstName} />{" "}
-            </div>
-            <div
-              style={{
-                fontSize: "40px",
-                fontWeight: "bold",
-              }}
-            >
-              {" "}
-              {student.firstName.toUpperCase()} {student.lastName.toUpperCase()}{" "}
-            </div>
-            <div>Email: {student.email} </div>
-            <div>Company: {student.company} </div>
-            <div>Skill: {student.skill} </div>
-            <div>Average: {average(student.grades)}%</div>
-            <Collapse isOpened={activeIndex === index}>
-              <div
-                className={classNames("alert alert-info msg", {
-                  show: activeIndex === index,
-                  hide: activeIndex !== index,
-                })}
-              >
-                {student.grades.map((grade, index) => (
-                  <div key={index}>
-                    Test{index + 1} {grade}%
-                  </div>
-                ))}
+            <div className="imageAndText">
+              <div className="imageDiv">
+                <img
+                  src={student.pic}
+                  alt={student.firstName}
+                  className="image"
+                />{" "}
               </div>
-              <ChildTags
-                student={student}
-                setTagFromChild={setTagFromChild.bind(this, index)}
-              />
-            </Collapse>
-            <button
-              className="expand-btn"
-              // need to use arrow function or else we get infinite rerender
-              onClick={() => toggleClass(index)}
-            >
-              {moreLess(index)}
-            </button>
+              <div>
+                <div className="name">
+                  {" "}
+                  {student.firstName.toUpperCase()}{" "}
+                  {student.lastName.toUpperCase()}{" "}
+                </div>
+                <div>Email: {student.email} </div>
+                <div>Company: {student.company} </div>
+                <div>Skill: {student.skill} </div>
+                <div>Average: {average(student.grades)}%</div>
+
+                <Collapse isOpened={activeIndex === index}>
+                  <div
+                    className={classNames("alert alert-info msg", {
+                      show: activeIndex === index,
+                      hide: activeIndex !== index,
+                    })}
+                  >
+                    {student.grades.map((grade, index) => (
+                      <div key={index}>
+                        Test{index + 1} {grade}%
+                      </div>
+                    ))}
+                  </div>
+                  <ChildTags
+                    // pass student as props to ChildTags.js, consumed by handleAddtion method
+                    // in ChildTags.js
+                    student={student}
+                    /* setTagFromChild is a method coming from Child component, 
+                CHildTags.js, we use .bind(this, index) to bind the index parameter,
+                so that when we call the method from the child component ChildTags.js,
+                we don't need to specify the index.
+                
+                pass in the method seTagFromChild via props to the child component 
+                ChildTags.js, at the time we pass this method to the child component, we already 
+                have the index available through .bind(this, index), so that we don't need to pass
+                it back to the parent later on. When the method gets called from ChildTags.js, 
+                it will also supply the paramter student back to the parent.                
+                */
+                    setTagFromChild={setTagFromChild.bind(this, index)}
+                  />
+                </Collapse>
+                <button
+                  className="expand-btn"
+                  // need to use arrow function or else we get infinite rerender
+                  onClick={() => toggleClass(index)}
+                >
+                  {moreLess(index)}
+                </button>
+              </div>
+            </div>
           </Fragment>
         ))}
     </Fragment>

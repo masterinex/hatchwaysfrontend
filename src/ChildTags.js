@@ -19,7 +19,10 @@ const ChildTags = ({ student, setTagFromChild }) => {
     //  merge the 2 arrays, tag an array which holds the existing tags from parent and newtags,
     // the new tags that the user has just entered
     let newTagStudent = { ...student, tag: [...tag, ...newtags] };
-    // send newTagStudent to parent
+    /* send newTagStudent to parent by calling method SetTagFromChild, which resides
+    in the parent component Studentlist.js, we don't need to pass in the first parameter index here,
+    because we have bound the index in the parent component Studentlist.js with the notation
+    setTagFromChild={setTagFromChild.bind(this, index)}*/
     setTagFromChild(newTagStudent);
   };
 
